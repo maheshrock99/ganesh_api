@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="munits-test-suite.xml" />
+	<munit:test name="munits-test-suite-munitsFlowTest" doc:id="ebd373f6-2c45-453d-baad-0d97fb8f3a9a" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="02bbca26-a6ea-48f9-b817-5882c50a71d9" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ce2301ca-a548-402c-a247-57e07b28b76c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://requesRespones.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="b5b8ba9e-34a1-4051-b305-4580c7b540b9" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://sucesspayload.dwl')]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to munitsFlow" doc:id="ccca5aad-abf6-4ef4-9767-dc7773d8c0a2" name="munitsFlow"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="munits-test-suiteTest" doc:id="9ed17494-1931-42b0-8b63-0d143eb207b9">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="6320ef55-9a32-4400-968f-b75e45d536b4" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://defultpayload.dwl')]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow Reference" doc:id="cf298cb1-43d1-4cc3-8ca2-fffd000f4117" name="munitsFlow"/>
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

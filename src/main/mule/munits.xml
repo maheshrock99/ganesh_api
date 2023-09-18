@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0d726b37-be12-4dcb-bd89-e82e642b3256" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="eb87089e-7bb6-4cf7-b0c0-6af723763967" >
+		<http:request-connection host="targeturl-xml.us-e2.cloudhub.io" />
+	</http:request-config>
+	<flow name="munitsFlow" doc:id="5c1d4cd9-c878-406f-a236-279e8454c685" >
+		<http:listener doc:name="Listener" doc:id="2b683942-a836-4495-9723-9648be307d84" config-ref="HTTP_Listener_config" path="/Link"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0c54cac2-a8d6-4f42-b6ce-561eb7c8d74a" message="sending to target system #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="8ceb42ec-760c-48f3-aa1d-abe11902487b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+{
+     "cars" :payload
+
+     
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="c6eb3d04-2099-4abc-882f-9eea7056a039" >
+			<when expression='#[payload.brand == "Appele"]'>
+				<ee:transform doc:name="Transform Message" doc:id="670b8883-fe27-4601-abf0-3c09b21ba6db">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+{
+     "mobiles" :payload
+
+     
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="4302c656-c89b-45d6-8931-eb2245d7532e" message="sending to target system sucessfully #[payload]"/>
+				<http:request method="POST" doc:name="Request" doc:id="ce2301ca-a548-402c-a247-57e07b28b76c" config-ref="HTTP_Request_configuration" path="/api/order"/>
+				<logger level="INFO" doc:name="Logger" doc:id="f6763a06-39ec-4a20-9551-8a6de7ea9a9e" message="condition was satisfied this target system #[payload]"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="a25c1467-46d4-42e9-94c8-97d5abcead96" message='Brand is not Apple '/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="4a75287e-7d92-43ff-a865-e85ce02fa17e" message="Condidtion was sucessfully triggerd this target System #[payload]"/>
+	</flow>
+</mule>
